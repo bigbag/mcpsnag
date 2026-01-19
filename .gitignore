@@ -1,0 +1,30 @@
+# Binary
+/mcpsnag
+/mcpsnag-*
+/bin/
+
+# Database
+data/
+*.db
+
+# Environment
+.env
+.envrc
+.local_env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test
+coverage.out
+.claude/
+CLAUDE.md
+
+*.json
