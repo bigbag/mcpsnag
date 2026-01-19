@@ -10,13 +10,15 @@ import (
 
 type Printer struct {
 	out     io.Writer
+	errOut  io.Writer
 	compact bool
 	verbose bool
 }
 
-func NewPrinter(out io.Writer, compact, verbose bool) *Printer {
+func NewPrinter(out, errOut io.Writer, compact, verbose bool) *Printer {
 	return &Printer{
 		out:     out,
+		errOut:  errOut,
 		compact: compact,
 		verbose: verbose,
 	}
@@ -101,11 +103,11 @@ func (p *Printer) PrintVerbose(format string, args ...any) {
 	if !p.verbose {
 		return
 	}
-	fmt.Fprintf(p.out, format+"\n", args...)
+	fmt.Fprintf(p.errOut, format+"\n", args...)
 }
 
 func (p *Printer) PrintError(err error) {
-	fmt.Fprintf(p.out, "error: %v\n", err)
+	fmt.Fprintf(p.errOut, "error: %v\n", err)
 }
 
 func (p *Printer) PrintSessionInfo(sessionID string) {

@@ -3,13 +3,14 @@ package output
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"strings"
 	"testing"
 )
 
 func TestPrinterPrintJSON(t *testing.T) {
 	var buf bytes.Buffer
-	p := NewPrinter(&buf, false, false)
+	p := NewPrinter(&buf, &bytes.Buffer{}, false, false)
 
 	data := map[string]string{"key": "value"}
 	err := p.PrintJSON(data)
@@ -28,7 +29,7 @@ func TestPrinterPrintJSON(t *testing.T) {
 
 func TestPrinterPrintJSONCompact(t *testing.T) {
 	var buf bytes.Buffer
-	p := NewPrinter(&buf, true, false)
+	p := NewPrinter(&buf, &bytes.Buffer{}, true, false)
 
 	data := map[string]string{"key": "value"}
 	err := p.PrintJSON(data)
@@ -45,7 +46,7 @@ func TestPrinterPrintJSONCompact(t *testing.T) {
 
 func TestPrinterPrintJSONPretty(t *testing.T) {
 	var buf bytes.Buffer
-	p := NewPrinter(&buf, false, false)
+	p := NewPrinter(&buf, &bytes.Buffer{}, false, false)
 
 	data := map[string]string{"key": "value"}
 	err := p.PrintJSON(data)
@@ -61,7 +62,7 @@ func TestPrinterPrintJSONPretty(t *testing.T) {
 
 func TestPrinterPrintRawJSON(t *testing.T) {
 	var buf bytes.Buffer
-	p := NewPrinter(&buf, false, false)
+	p := NewPrinter(&buf, &bytes.Buffer{}, false, false)
 
 	raw := json.RawMessage(`{"tools":[{"name":"test"}]}`)
 	err := p.PrintRawJSON(raw)
@@ -77,7 +78,7 @@ func TestPrinterPrintRawJSON(t *testing.T) {
 
 func TestPrinterPrintRawJSONCompact(t *testing.T) {
 	var buf bytes.Buffer
-	p := NewPrinter(&buf, true, false)
+	p := NewPrinter(&buf, &bytes.Buffer{}, true, false)
 
 	raw := json.RawMessage(`{"key":"value"}`)
 	err := p.PrintRawJSON(raw)
@@ -94,7 +95,7 @@ func TestPrinterPrintRawJSONCompact(t *testing.T) {
 
 func TestPrinterPrintRawJSONInvalid(t *testing.T) {
 	var buf bytes.Buffer
-	p := NewPrinter(&buf, false, false)
+	p := NewPrinter(&buf, &bytes.Buffer{}, false, false)
 
 	raw := json.RawMessage(`not valid json`)
 	err := p.PrintRawJSON(raw)
@@ -109,43 +110,60 @@ func TestPrinterPrintRawJSONInvalid(t *testing.T) {
 }
 
 func TestPrinterPrintVerbose(t *testing.T) {
-	var buf bytes.Buffer
-	p := NewPrinter(&buf, false, true)
+	var errBuf bytes.Buffer
+	p := NewPrinter(&bytes.Buffer{}, &errBuf, false, true)
 
 	p.PrintVerbose("test message %s", "arg")
 
-	output := buf.String()
+	output := errBuf.String()
 	if !strings.Contains(output, "test message arg") {
 		t.Errorf("expected verbose message, got %s", output)
 	}
 }
 
 func TestPrinterPrintVerboseDisabled(t *testing.T) {
-	var buf bytes.Buffer
-	p := NewPrinter(&buf, false, false)
+	var errBuf bytes.Buffer
+	p := NewPrinter(&bytes.Buffer{}, &errBuf, false, false)
 
 	p.PrintVerbose("test message")
 
-	output := buf.String()
+	output := errBuf.String()
 	if output != "" {
 		t.Errorf("expected no output when verbose disabled, got %s", output)
 	}
 }
 
 func TestPrinterPrintError(t *testing.T) {
-	var buf bytes.Buffer
-	p := NewPrinter(&buf, false, false)
+	var errBuf bytes.Buffer
+	p := NewPrinter(&bytes.Buffer{}, &errBuf, false, false)
 
-	p.PrintError(nil)
-	output := buf.String()
+	p.PrintError(errors.New("test error"))
+	output := errBuf.String()
 	if !strings.Contains(output, "error:") {
 		t.Errorf("expected error prefix, got %s", output)
+	}
+	if !strings.Contains(output, "test error") {
+		t.Errorf("expected error message, got %s", output)
+	}
+}
+
+func TestPrinterPrintErrorToStderr(t *testing.T) {
+	var outBuf, errBuf bytes.Buffer
+	p := NewPrinter(&outBuf, &errBuf, false, false)
+
+	p.PrintError(errors.New("test error"))
+
+	if outBuf.String() != "" {
+		t.Errorf("expected no output to stdout, got %s", outBuf.String())
+	}
+	if !strings.Contains(errBuf.String(), "error:") {
+		t.Errorf("expected error to stderr, got %s", errBuf.String())
 	}
 }
 
 func TestPrinterPrintSessionInfo(t *testing.T) {
 	var buf bytes.Buffer
-	p := NewPrinter(&buf, false, false)
+	p := NewPrinter(&buf, &bytes.Buffer{}, false, false)
 
 	p.PrintSessionInfo("test-session-123")
 
@@ -160,7 +178,7 @@ func TestPrinterPrintSessionInfo(t *testing.T) {
 
 func TestPrinterPrintRequestVerbose(t *testing.T) {
 	var buf bytes.Buffer
-	p := NewPrinter(&buf, false, true)
+	p := NewPrinter(&buf, &bytes.Buffer{}, false, true)
 
 	headers := map[string]string{"Authorization": "Bearer token"}
 	body := []byte(`{"method":"test"}`)
@@ -178,7 +196,7 @@ func TestPrinterPrintRequestVerbose(t *testing.T) {
 
 func TestPrinterPrintRequestNotVerbose(t *testing.T) {
 	var buf bytes.Buffer
-	p := NewPrinter(&buf, false, false)
+	p := NewPrinter(&buf, &bytes.Buffer{}, false, false)
 
 	p.PrintRequest("POST", "http://localhost/mcp", nil, nil)
 

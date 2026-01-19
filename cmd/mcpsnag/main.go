@@ -113,7 +113,7 @@ func main() {
 	}
 
 	url := flag.Arg(0)
-	printer := output.NewPrinter(os.Stdout, compact, verbose)
+	printer := output.NewPrinter(os.Stdout, os.Stderr, compact, verbose)
 
 	if !initOnly && data == "" {
 		fmt.Fprintln(os.Stderr, "error: -d/--data is required (or use --init-only)")
@@ -124,9 +124,11 @@ func main() {
 	headerMap := make(map[string]string)
 	for _, h := range headers {
 		parts := strings.SplitN(h, ":", 2)
-		if len(parts) == 2 {
-			headerMap[strings.TrimSpace(parts[0])] = strings.TrimSpace(parts[1])
+		if len(parts) != 2 {
+			fmt.Fprintf(os.Stderr, "warning: invalid header format %q (expected 'Key: Value')\n", h)
+			continue
 		}
+		headerMap[strings.TrimSpace(parts[0])] = strings.TrimSpace(parts[1])
 	}
 
 	c := client.New(client.Options{
@@ -189,6 +191,11 @@ func runRequest(c *client.Client, printer *output.Printer, data string) {
 	var userReq protocol.UserRequest
 	if err := json.Unmarshal([]byte(data), &userReq); err != nil {
 		printer.PrintError(fmt.Errorf("invalid JSON: %w", err))
+		os.Exit(1)
+	}
+
+	if userReq.Method == "" {
+		printer.PrintError(fmt.Errorf("missing 'method' field in request"))
 		os.Exit(1)
 	}
 
