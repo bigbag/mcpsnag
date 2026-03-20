@@ -311,6 +311,38 @@ make coverage
 make test-race
 ```
 
+## Claude Code Plugin
+
+mcpsnag includes a [Claude Code](https://claude.ai/code) plugin. Use `/mcpsnag:debug` to debug MCP servers directly from Claude Code.
+
+### Install from GitHub
+
+```bash
+/plugin marketplace add bigbag/mcpsnag
+/plugin install mcpsnag@bigbag-mcpsnag
+```
+
+### Install from local path
+
+```bash
+/plugin marketplace add /path/to/mcpsnag
+/plugin install mcpsnag@mcpsnag
+```
+
+Then type `/mcpsnag:debug` to start debugging an MCP server.
+
+### Local development
+
+```bash
+claude --plugin-dir .
+```
+
+Use `/reload-plugins` after making changes to the skill without restarting.
+
+## References
+
+- [MCP Specification](https://modelcontextprotocol.io/docs/getting-started/intro)
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) file.

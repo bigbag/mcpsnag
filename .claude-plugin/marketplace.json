@@ -1,0 +1,16 @@
+{
+  "name": "mcpsnag",
+  "owner": {
+    "name": "bigbag",
+    "url": "https://github.com/bigbag"
+  },
+  "plugins": [
+    {
+      "name": "mcpsnag",
+      "source": {
+        "source": "github",
+        "repo": "bigbag/mcpsnag"
+      }
+    }
+  ]
+}

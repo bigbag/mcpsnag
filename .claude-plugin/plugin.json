@@ -1,0 +1,6 @@
+{
+  "name": "mcpsnag",
+  "description": "Debug and test MCP servers from Claude Code",
+  "version": "0.1.0",
+  "repository": "https://github.com/bigbag/mcpsnag"
+}
