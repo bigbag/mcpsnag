@@ -1,4 +1,4 @@
-.PHONY: build test clean install tidy run vet build-all help fmt lint coverage test-race
+.PHONY: build test clean install tidy run vet build-all help fmt lint coverage test-race security
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -78,6 +78,8 @@ vet: ## Run go vet
 	$(GOVET) ./...
 
 lint: fmt vet ## Run fmt and vet
+security: ## Scan Go code
+	$(GOCMD) run github.com/securego/gosec/v2/cmd/gosec@v2.29.0 ./...
 
 tidy: ## Tidy dependencies
 	$(GOMOD) tidy

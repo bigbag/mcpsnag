@@ -110,7 +110,6 @@ func (p *Printer) PrintError(err error) {
 	fmt.Fprintf(p.errOut, "error: %v\n", err)
 }
 
-func (p *Printer) PrintSessionInfo(sessionID string) {
-	data := map[string]string{"sessionId": sessionID}
-	p.PrintJSON(data)
+func (p *Printer) PrintSessionInfo(sessionID string) error {
+	return p.PrintJSON(map[string]string{"sessionId": sessionID})
 }

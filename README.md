@@ -289,6 +289,7 @@ make coverage-html # Generate HTML coverage report
 make fmt           # Format code
 make vet           # Run go vet
 make lint          # Run fmt and vet
+make security      # Scan Go code
 make tidy          # Tidy Go modules
 make clean         # Remove build artifacts
 make install       # Install to GOPATH/bin
@@ -338,6 +339,20 @@ claude --plugin-dir .
 ```
 
 Use `/reload-plugins` after making changes to the skill without restarting.
+
+## Codex and other agents
+
+The skill file is `skills/debug/SKILL.md`. Claude Code loads this file from the plugin. Codex, Copilot CLI, and Gemini CLI load `.agents/skills/debug`. That path is a link to `skills/debug`.
+
+Install the same skill for your user:
+
+```bash
+mkdir -p ~/.agents/skills ~/.codex/skills
+ln -sfn "$(pwd)/skills/debug" ~/.agents/skills/debug
+ln -sfn "$(pwd)/skills/debug" ~/.codex/skills/debug
+```
+
+Restart the agent after you add the link. Do not copy `SKILL.md`. A copy does not stay current.
 
 ## References
 

@@ -165,7 +165,9 @@ func TestPrinterPrintSessionInfo(t *testing.T) {
 	var buf bytes.Buffer
 	p := NewPrinter(&buf, &bytes.Buffer{}, false, false)
 
-	p.PrintSessionInfo("test-session-123")
+	if err := p.PrintSessionInfo("test-session-123"); err != nil {
+		t.Fatal(err)
+	}
 
 	output := buf.String()
 	if !strings.Contains(output, "sessionId") {

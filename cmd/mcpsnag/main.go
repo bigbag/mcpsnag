@@ -156,7 +156,10 @@ func main() {
 	}
 
 	if initOnly {
-		printer.PrintSessionInfo(c.Session().ID)
+		if err := printer.PrintSessionInfo(c.Session().ID); err != nil {
+			printer.PrintError(err)
+			os.Exit(1)
+		}
 		return
 	}
 
@@ -178,11 +181,16 @@ func runRaw(c *client.Client, printer *output.Printer, data string) {
 
 	if resp != nil {
 		if resp.Error != nil {
-			printer.PrintJSON(resp.Error)
+			if err := printer.PrintJSON(resp.Error); err != nil {
+				printer.PrintError(err)
+			}
 			os.Exit(1)
 		}
 		if resp.Result != nil {
-			printer.PrintRawJSON(resp.Result)
+			if err := printer.PrintRawJSON(resp.Result); err != nil {
+				printer.PrintError(err)
+				os.Exit(1)
+			}
 		}
 	}
 }
@@ -207,7 +215,9 @@ func runRequest(c *client.Client, printer *output.Printer, data string) {
 	})
 	if err != nil {
 		if resp != nil && resp.Error != nil {
-			printer.PrintJSON(resp.Error)
+			if err := printer.PrintJSON(resp.Error); err != nil {
+				printer.PrintError(err)
+			}
 		} else {
 			printer.PrintError(err)
 		}
@@ -215,6 +225,9 @@ func runRequest(c *client.Client, printer *output.Printer, data string) {
 	}
 
 	if resp != nil && resp.Result != nil {
-		printer.PrintRawJSON(resp.Result)
+		if err := printer.PrintRawJSON(resp.Result); err != nil {
+			printer.PrintError(err)
+			os.Exit(1)
+		}
 	}
 }
